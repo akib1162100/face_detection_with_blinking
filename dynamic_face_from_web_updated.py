@@ -248,7 +248,7 @@ def face_recognize(url = 0):
         # Loop through each face in this frame of video
         for (top, right, bottom, left), face_encoding in zip(face_locations, face_encodings):
             # See if the face is a match for the known face(s)
-            matches = face_recognition.compare_faces(known_face_encodings, face_encoding,tolerance = 0.58)
+            matches = face_recognition.compare_faces(known_face_encodings, face_encoding,tolerance = 0.57)
 
             name = "Unknown"
 
@@ -302,7 +302,8 @@ blink_num = 4
 # res = blinking_count(blink_num,url)
 res = True
 
-url = "rtsp://admin:PE-LD-04@192.168.10.33:554/media/video2"
+#url = "rtsp://admin:PE-LD-04@192.168.10.33:554/media/video2"
+url = "rtsp://admin:admin@192.168.10.246/"
 if res:
     face_recognize(url)
 else:
