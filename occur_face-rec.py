@@ -1,3 +1,4 @@
+from asyncore import write
 import numpy as np
 # import argparse
 # import imutils
@@ -15,6 +16,8 @@ from collections import deque
 import pandas as pd
 
 import mediapipe as mp
+import requests
+
 
 # from scipy.spatial import distance as dist
 # from imutils.video import FileVideoStream
@@ -310,7 +313,7 @@ def face_recognize(url = 0):
                     for _ in range(25): pName.pop(0)
                 pName.append(name1)
             
-            if(len(pName)>0):
+            if(len(pName)>10):
                 name = max(pName, key=pName.count)
                 print(len(pName))
                 print(pName)
@@ -321,6 +324,12 @@ def face_recognize(url = 0):
             cv2.rectangle(frame, (left, bottom - 35), (right, bottom), (0, 0, 255), cv2.FILLED)
             font = cv2.FONT_HERSHEY_DUPLEX
             cv2.putText(frame, name, (left + 6, bottom - 6), font, 1.0, (255, 255, 255), 1)
+            
+            if (time.time()-dTime)==1.5:
+                post_url = "http://192.168.10.72"
+                r = requests.post(post_url,  data={'name': name, 'time': str(time.time())})
+                my_file = open('namefile.txt','w')
+                my_file.write(name)
 
             #file=random.getrandbits(32)
             #cv2.imwrite('./images/'+str(file)+'.png',frame)
