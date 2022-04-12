@@ -229,6 +229,7 @@ def face_recognize(url = 0):
     tTime = 0.0
     pTime = 0
     pName = []
+    isRequest = False
     while True:
         # video_capture.set(cv2.CAP_PROP_POS_FRAMES,0)
         # if end_time<= time.time():
@@ -294,10 +295,11 @@ def face_recognize(url = 0):
             # See if the face is a match for the known face(s)
             # count+=1
             eTime = time.time()
-            if(eTime-dTime>=1.0):
+            if(eTime-dTime>=3.0):
                 pName=[]
                 print("time out array clearence")
                 dTime = time.time()
+                
             print(face_locations)
             name = "Unknown"
             #single face
@@ -308,15 +310,29 @@ def face_recognize(url = 0):
                 # if count >= 50:
                 #     count = 0
                 #     pName=[]
-                if len(pName)>25:
+                if len(pName)>30:
                     print("array clearence")
                     for _ in range(25): pName.pop(0)
                 pName.append(name1)
             
-            if(len(pName)>10):
+            if(len(pName)>7):
                 name = max(pName, key=pName.count)
-                print(len(pName))
-                print(pName)
+                # print(len(pName))
+                print(name)
+            if(len(pName)==8):
+                try:
+                    print('requesting...')
+                    requests.get('http://192.168.10.72:8080')
+                except:
+                    # prevent raise ConnectionError(err, request=request)
+                    # requests.exceptions.ConnectionError: ('Connection aborted.', BadStatusLine('HTTP/1.1 \r\n'))
+                    continue
+                
+
+
+            # print('eTime.{}'.format(eTime))
+            # print('dTime.{}'.format(dTime))
+            # if(eTime-dTime>=1.5 and eTime-dTime<=1.6):
 
             cv2.rectangle(frame, (left, top), (right, bottom), (0, 0, 255), 2)
 
@@ -324,12 +340,21 @@ def face_recognize(url = 0):
             cv2.rectangle(frame, (left, bottom - 35), (right, bottom), (0, 0, 255), cv2.FILLED)
             font = cv2.FONT_HERSHEY_DUPLEX
             cv2.putText(frame, name, (left + 6, bottom - 6), font, 1.0, (255, 255, 255), 1)
+            # print('time.{}'.format(time.time()))
+            # try:
+            #     requests.get('http://192.168.10.72:8080')
+            #     continue
+            # except:
+            #     # prevent raise ConnectionError(err, request=request)
+            #     # requests.exceptions.ConnectionError: ('Connection aborted.', BadStatusLine('HTTP/1.1 \r\n'))
+            #     continue
             
-            if (time.time()-dTime)==1.5:
-                post_url = "http://192.168.10.72"
-                r = requests.post(post_url,  data={'name': name, 'time': str(time.time())})
-                my_file = open('namefile.txt','w')
-                my_file.write(name)
+            # if (time.time()-eTime)==1.5:
+            #     post_url = "http://192.168.10.78:8080"
+            #     r = requests.post(post_url,  data={'name': name, 'time': str(time.time())})
+            #     print('request:{}'.format(r))
+            #     my_file = open('namefile.txt','w')
+            #     my_file.write(name)
 
             #file=random.getrandbits(32)
             #cv2.imwrite('./images/'+str(file)+'.png',frame)
