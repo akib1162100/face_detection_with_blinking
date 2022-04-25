@@ -229,6 +229,7 @@ def face_recognize(url = 0):
     tTime = 0.0
     pTime = 0
     pName = []
+    timer = 0.0
     isRequest = False
     while True:
         # video_capture.set(cv2.CAP_PROP_POS_FRAMES,0)
@@ -257,10 +258,13 @@ def face_recognize(url = 0):
         results = faceDetection.process(rgb_frame)
         # cv2.imshow('FaceDetector', rgb_frame)
         face_locations = []
+        if (time.time()-timer)>=1.5:
+            print('clearing array')
+            pName = []
         if results.detections:
+            timer = time.time()
             if tTime == 0.0:
                 tTime = time.time()
-                print("start time : "+str(tTime))
             for id,detection in enumerate(results.detections):
                 # mpDraw.draw_detection(rgb_frame, detection)
                 bBoxC=detection.location_data.relative_bounding_box
@@ -293,13 +297,7 @@ def face_recognize(url = 0):
         dTime = time.time()
         for (top, right, bottom, left), face_encoding in zip(face_locations, face_encodings):
             # See if the face is a match for the known face(s)
-            # count+=1
-            eTime = time.time()
-            if(eTime-dTime>=3.0):
-                pName=[]
-                print("time out array clearence")
-                dTime = time.time()
-                
+            # count+=1         
             print(face_locations)
             name = "Unknown"
             #single face
@@ -312,14 +310,18 @@ def face_recognize(url = 0):
                 #     pName=[]
                 if len(pName)>30:
                     print("array clearence")
-                    for _ in range(25): pName.pop(0)
+                    for _ in range(20): pName.pop(0)
                 pName.append(name1)
             
-            if(len(pName)>7):
+            #add timer to best optimization
+
+            if(len(pName)>5):
                 name = max(pName, key=pName.count)
                 # print(len(pName))
                 print(name)
-            if(len(pName)==8):
+
+
+            if(len(pName)==9):
                 try:
                     print('requesting...')
                     requests.get('http://192.168.10.72:8080')
@@ -329,10 +331,6 @@ def face_recognize(url = 0):
                     continue
                 
 
-
-            # print('eTime.{}'.format(eTime))
-            # print('dTime.{}'.format(dTime))
-            # if(eTime-dTime>=1.5 and eTime-dTime<=1.6):
 
             cv2.rectangle(frame, (left, top), (right, bottom), (0, 0, 255), 2)
 
@@ -389,9 +387,9 @@ blink_num = 4
 res = True
 
 #url = "rtsp://admin:PE-LD-04@192.168.10.33:554/media/video2"
-url = "rtsp://admin:admin321!!@192.168.10.33:554/ch01/0"
+# url = "rtsp://admin:admin321!!@192.168.10.33:554/ch01/0"
 # url = 0
-# url="vid1.webm"
+url="video1.mp4"
 #url="pexels-cottonbro-5329613.mp4"
 if res:
     face_recognize(url)
