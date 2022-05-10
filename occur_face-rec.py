@@ -14,7 +14,7 @@ import pickle
 from collections import deque
 # import random
 import pandas as pd
-
+import datetime
 import mediapipe as mp
 import requests
 
@@ -202,7 +202,7 @@ if not os.path.exists("encodings.pkl"):
     for i in range(len(my_list)):
         if(my_list[i]!=".ipynb_checkpoints"):
 
-            image=face_recognition.load_image_file("known_images/"+my_list[i]+"/02.jpg")
+            image=face_recognition.load_image_file("known_images/"+my_list[i]+"/01.jpg")
             print(my_list[i])
             face_encoding = face_recognition.face_encodings(image,num_jitters=100)[0]
             known_face_encodings.append(face_encoding)
@@ -258,10 +258,12 @@ def face_recognize(url = 0):
         results = faceDetection.process(rgb_frame)
         # cv2.imshow('FaceDetector', rgb_frame)
         face_locations = []
-        if (time.time()-timer)>=1.5:
-            print('clearing array')
+        if (time.time()-timer)>=2.5:
+            # print('clearing array')
             pName = []
         if results.detections:
+            print('this time first detected {}'.format(datetime.datetime.now()))
+            
             timer = time.time()
             if tTime == 0.0:
                 tTime = time.time()
@@ -295,6 +297,9 @@ def face_recognize(url = 0):
         faces = []
         count = 0
         dTime = time.time()
+        # print('http://192.168.10.72:8080?id={}'.format('0334'))
+        # requests.get('http://192.168.10.87:8080?id={}'.format('0334'))
+
         for (top, right, bottom, left), face_encoding in zip(face_locations, face_encodings):
             # See if the face is a match for the known face(s)
             # count+=1         
@@ -308,24 +313,32 @@ def face_recognize(url = 0):
                 # if count >= 50:
                 #     count = 0
                 #     pName=[]
-                if len(pName)>30:
+                if len(pName)>=30:
                     print("array clearence")
-                    for _ in range(20): pName.pop(0)
+                    for _ in range(22): pName.pop(0)
                 pName.append(name1)
             
             #add timer to best optimization
 
-            if(len(pName)>5):
+            if(len(pName)>=5):
                 name = max(pName, key=pName.count)
                 # print(len(pName))
                 print(name)
 
 
-            if(len(pName)==9):
+            if(len(pName)==7):
                 try:
-                    print('requesting...')
-                    requests.get('http://192.168.10.72:8080')
+                    # employee_id = name.split('-')[-1]
+                    print('time needed before request {}'.format(time.time()-timer))
+                    print('this time before request {}'.format(datetime.datetime.now()))
+                    print('requesting... for name - {} id - {}'.format(name.split('-')[0],name.split('-')[-1]))
+                    requests.get('http://192.168.10.87:8080?id={}'.format(name.split('-')[-1]))
+                    # requests.get('http://192.168.10.72:8080')
+
+                    print('time needed after request {}'.format(time.time()-timer))
                 except:
+                    print('time needed after request {}'.format(time.time()-timer))
+                    print('this time after request {}'.format(datetime.datetime.now()))
                     # prevent raise ConnectionError(err, request=request)
                     # requests.exceptions.ConnectionError: ('Connection aborted.', BadStatusLine('HTTP/1.1 \r\n'))
                     continue
@@ -337,7 +350,8 @@ def face_recognize(url = 0):
             # Draw a label with a name below the face
             cv2.rectangle(frame, (left, bottom - 35), (right, bottom), (0, 0, 255), cv2.FILLED)
             font = cv2.FONT_HERSHEY_DUPLEX
-            cv2.putText(frame, name, (left + 6, bottom - 6), font, 1.0, (255, 255, 255), 1)
+            just_name = name.split('-')[0]
+            cv2.putText(frame, just_name, (left + 6, bottom - 6), font, 1.0, (255, 255, 255), 1)
             # print('time.{}'.format(time.time()))
             # try:
             #     requests.get('http://192.168.10.72:8080')
@@ -387,9 +401,9 @@ blink_num = 4
 res = True
 
 #url = "rtsp://admin:PE-LD-04@192.168.10.33:554/media/video2"
-# url = "rtsp://admin:admin321!!@192.168.10.33:554/ch01/0"
+url = "rtsp://admin:admin321!!@192.168.10.33:554/ch01/0"
 # url = 0
-url="video1.mp4"
+# url="video1.mp4"
 #url="pexels-cottonbro-5329613.mp4"
 if res:
     face_recognize(url)
