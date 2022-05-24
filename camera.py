@@ -12,7 +12,7 @@ import face_recognition
 import pickle
 from collections import deque
 import pandas as pd
-import datetime
+from datetime import datetime
 import mediapipe as mp
 import requests
 
@@ -44,7 +44,7 @@ class VideoCamera(object):
                 self.known_face_encodings ,self.known_face_names = pickle.load(f)
         self.mpFaceDetection = mp.solutions.face_detection
 		# mpDraw = mp.solutions.drawing_utils
-        self.faceDetection = self.mpFaceDetection.FaceDetection()
+        self.faceDetection = self.mpFaceDetection.FaceDetection(model_selection=1)
         self.distances = []
 
         self.tTime = 0.0
@@ -62,19 +62,31 @@ class VideoCamera(object):
         #self.video.release()
         self.video.stopped=True
 
+    def picture_from_frame(self,frame,name = "unknown"):
+        this_time = datetime.now().isoformat(timespec='minutes')
+        known_dir="captured_known_images/"+name
+        # cap = gen_capture(url=0)
+        if not (os.path.isdir(known_dir)):
+            mode = 0o777
+            os.makedirs(known_dir,mode)
+        
+        file_path = known_dir+'/'+this_time+'.jpg'
+        # print()
+        cv2.imwrite(file_path,frame)
+        return file_path
+
     def get_frame(self):
         #success, image = self.video.read()
         rgb_frame = self.video.frame
         # (self.grabbed, self.frame) = self.stream.read()
         if rgb_frame is not None:
-            rgb_frame = cv2.resize(rgb_frame, (640,480))
+            rgb_frame = cv2.resize(rgb_frame, (0, 0), fx=0.4, fy=0.3)
 
 
         # rgb_frame = self.frame 
         results = self.faceDetection.process(rgb_frame)
         face_locations = []
         if (time.time()-self.timer)>=2:
-            print('clearing array')
             self.pName = []
         if results.detections:            
             self.timer = time.time()
@@ -115,7 +127,7 @@ class VideoCamera(object):
             if face_distances[best_match_index] < 0.6:
                 name1 = self.known_face_names[best_match_index]
                 if len(self.pName)>=30:
-                    print("array clearence")
+                    
                     # for _ in range(21): self.pName.pop(0)
                     self.pName = self.pName[-1:-9:-1]
 
@@ -130,10 +142,9 @@ class VideoCamera(object):
             print('len {}'.format(len(self.pName)))
             if(len(self.pName)==7):
                 try:
-                    # employee_id = name.split('-')[-1]
-                    # print('time needed before request {}'.format(time.time()-timer))
-                    # print('this time before request {}'.format(datetime.datetime.now()))
                     print('requesting... for name - {} id - {}'.format(name.split('-')[0],name.split('-')[-1]))
+                    
+                    self.picture_from_frame(rgb_frame,name = name)
                     requests.get('http://192.168.10.87:8080?id={}'.format(name.split('-')[-1]))
 
                 except:

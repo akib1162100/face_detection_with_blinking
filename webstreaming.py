@@ -67,17 +67,12 @@ def detect_motion(frameCount):
             # time.sleep(1.0)
             video_capture = gen_capture(stream=video_capture,url=url)
             ret, frame = video_capture.read()
-            frame = cv2.resize(frame, (640,480))
+            frame = cv2.resize(frame, (0, 0), fx=0.3, fy=0.3)
 
-        
         
         with lock:
             outputFrame = frame.copy()
 	
-
-
-
-
 
 def gen(camera):
     n=0
