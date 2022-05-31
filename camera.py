@@ -80,7 +80,7 @@ class VideoCamera(object):
         rgb_frame = self.video.frame
         # (self.grabbed, self.frame) = self.stream.read()
         if rgb_frame is not None:
-            rgb_frame = cv2.resize(rgb_frame, (0, 0), fx=0.4, fy=0.3)
+            rgb_frame = cv2.resize(rgb_frame, (0, 0), fx=0.4, fy=0.3333)
 
 
         # rgb_frame = self.frame 
